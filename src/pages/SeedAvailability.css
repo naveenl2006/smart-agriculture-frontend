@@ -1,0 +1,284 @@
+.seed-availability-page {
+    padding: 1.5rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.seed-availability-page .page-header {
+    margin-bottom: 2rem;
+}
+
+.seed-availability-page .page-header.with-back {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.seed-availability-page .back-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.seed-availability-page .back-btn:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+}
+
+.seed-availability-page .page-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 0.5rem;
+}
+
+.seed-availability-page .title-icon {
+    color: #10b981;
+    font-size: 2rem;
+}
+
+.seed-availability-page .page-subtitle {
+    color: #6b7280;
+    font-size: 0.95rem;
+}
+
+/* Search Section */
+.search-section {
+    margin-bottom: 2rem;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    max-width: 400px;
+}
+
+.search-box .search-icon {
+    color: #9ca3af;
+    font-size: 1.25rem;
+}
+
+.search-box input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 1rem;
+    outline: none;
+}
+
+/* Districts Grid */
+.districts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.district-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    background: linear-gradient(145deg, #ffffff, #f8fafc);
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.district-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    border-color: #10b981;
+}
+
+.district-icon {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+    border-radius: 10px;
+    color: #10b981;
+    font-size: 1.25rem;
+}
+
+.district-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.district-info h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1a1a2e;
+    margin-bottom: 0.125rem;
+}
+
+.district-info .english-name {
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
+.arrow-icon {
+    color: #9ca3af;
+    transition: all 0.3s ease;
+}
+
+.district-card:hover .arrow-icon {
+    color: #10b981;
+    transform: translate(4px, -4px);
+}
+
+/* Seed Table */
+.seed-table-container {
+    overflow-x: auto;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+}
+
+.seed-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.seed-table th,
+.seed-table td {
+    padding: 0.75rem 1rem;
+    text-align: center;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.seed-table th {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.seed-table th.aec-header {
+    text-align: left;
+    min-width: 180px;
+}
+
+.seed-table td.aec-name {
+    text-align: left;
+    font-weight: 500;
+    color: #1a1a2e;
+}
+
+.seed-table td.has-stock {
+    background: #ecfdf5;
+    color: #059669;
+    font-weight: 600;
+}
+
+.seed-table td.no-stock {
+    color: #9ca3af;
+}
+
+.seed-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+.seed-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Loading & Empty States */
+.loading-state,
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    gap: 1rem;
+    color: #6b7280;
+}
+
+.loading-state .spin {
+    font-size: 2rem;
+    animation: spin 1s linear infinite;
+}
+
+.empty-state .empty-icon {
+    font-size: 4rem;
+    color: #d1d5db;
+}
+
+.empty-state h3 {
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+/* Source Info */
+.source-info {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: center;
+}
+
+.source-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: rgba(16, 185, 129, 0.1);
+    border-radius: 20px;
+    color: #059669;
+    font-size: 0.875rem;
+}
+
+/* Animation */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .seed-availability-page {
+        padding: 1rem;
+    }
+
+    .seed-availability-page .page-title {
+        font-size: 1.5rem;
+    }
+
+    .districts-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .seed-table {
+        font-size: 0.75rem;
+    }
+
+    .seed-table th,
+    .seed-table td {
+        padding: 0.5rem;
+    }
+}

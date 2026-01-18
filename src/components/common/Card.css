@@ -1,0 +1,128 @@
+.card {
+    background: var(--color-white);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--color-gray-100);
+    overflow: hidden;
+    transition: all var(--transition-normal);
+}
+
+.card-hoverable:hover {
+    box-shadow: var(--shadow-card);
+    border-color: var(--color-primary-100);
+    transform: translateY(-2px);
+}
+
+.card-clickable {
+    cursor: pointer;
+}
+
+/* Variants */
+.card-default {
+    background: var(--color-white);
+}
+
+.card-gradient {
+    background: var(--bg-gradient);
+    color: var(--color-white);
+    border: none;
+}
+
+.card-gradient .card-title,
+.card-gradient .card-subtitle {
+    color: var(--color-white);
+}
+
+.card-outlined {
+    border: 2px solid var(--color-gray-200);
+    box-shadow: none;
+}
+
+.card-glass {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+/* Padding */
+.card-padding-sm .card-body {
+    padding: var(--space-3);
+}
+
+.card-padding-md .card-body {
+    padding: var(--space-5);
+}
+
+.card-padding-lg .card-body {
+    padding: var(--space-6);
+}
+
+.card-padding-none .card-body {
+    padding: 0;
+}
+
+/* Header */
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-4) var(--space-5);
+    border-bottom: 1px solid var(--color-gray-100);
+}
+
+.card-gradient .card-header {
+    border-bottom-color: rgba(255, 255, 255, 0.2);
+}
+
+.card-header-left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.card-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-primary-50);
+    color: var(--color-primary);
+    border-radius: var(--radius-lg);
+    font-size: 20px;
+}
+
+.card-gradient .card-icon {
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--color-white);
+}
+
+.card-titles {
+    display: flex;
+    flex-direction: column;
+}
+
+.card-title {
+    font-size: var(--text-lg);
+    font-weight: var(--font-semibold);
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.card-subtitle {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+    margin: 0;
+}
+
+/* Footer */
+.card-footer {
+    padding: var(--space-4) var(--space-5);
+    border-top: 1px solid var(--color-gray-100);
+    background: var(--color-gray-50);
+}
+
+.card-gradient .card-footer {
+    background: rgba(0, 0, 0, 0.1);
+    border-top-color: rgba(255, 255, 255, 0.2);
+}
