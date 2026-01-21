@@ -230,11 +230,14 @@
     font-size: var(--text-4xl);
     font-weight: var(--font-bold);
     color: var(--color-primary);
+    margin-bottom: var(--space-2);
 }
 
 .stat-label {
+    display: block;
     font-size: var(--text-sm);
     color: var(--text-secondary);
+    margin-top: var(--space-1);
 }
 
 /* Features Section */
