@@ -5,7 +5,7 @@ import Button from '../components/common/Button';
 import LanguageToggle from '../components/common/LanguageToggle';
 import {
     FiArrowRight, FiCheck, FiDroplet, FiCamera, FiTrendingUp,
-    FiTruck, FiUsers
+    FiTruck, FiUsers, FiCloud, FiCalendar, FiCpu, FiFileText, FiLayout
 } from 'react-icons/fi';
 import { GiWheat, GiCow, GiPlantRoots } from 'react-icons/gi';
 import './Home.css';
@@ -17,45 +17,75 @@ const Home = () => {
     const features = [
         {
             icon: <GiPlantRoots size={32} />,
-            title: t('home.cropRecommendation'),
-            description: t('home.cropRecommendationDesc'),
+            title: t('home.cropRecommendation') || 'Crop Recommendation',
+            description: t('home.cropRecommendationDesc') || 'AI-powered suggestions based on soil and climate',
             color: 'green',
         },
         {
+            icon: <FiCalendar size={32} />,
+            title: t('home.cropScheduling') || 'Crop Scheduling & Tracking',
+            description: t('home.cropSchedulingDesc') || 'Plan and track your crop activities from planting to harvest',
+            color: 'teal',
+        },
+        {
             icon: <FiCamera size={32} />,
-            title: t('home.diseaseDetection'),
-            description: t('home.diseaseDetectionDesc'),
+            title: t('home.diseaseDetection') || 'Disease Detection',
+            description: t('home.diseaseDetectionDesc') || 'AI-powered plant disease detection using photos',
             color: 'purple',
         },
         {
             icon: <FiTrendingUp size={32} />,
-            title: t('home.marketPrices'),
-            description: t('home.marketPricesDesc'),
+            title: t('home.marketPrices') || 'Market Prices',
+            description: t('home.marketPricesDesc') || 'Real-time commodity prices and trends',
             color: 'blue',
         },
         {
+            icon: <FiCloud size={32} />,
+            title: t('home.weatherAlerts') || 'Weather Alerts',
+            description: t('home.weatherAlertsDesc') || 'Real-time weather forecasts and farming alerts',
+            color: 'sky',
+        },
+        {
             icon: <FiDroplet size={32} />,
-            title: t('home.smartIrrigation'),
-            description: t('home.smartIrrigationDesc'),
+            title: t('home.smartIrrigation') || 'Smart Irrigation',
+            description: t('home.smartIrrigationDesc') || 'Optimize water usage with intelligent scheduling',
             color: 'cyan',
         },
         {
+            icon: <FiCpu size={32} />,
+            title: t('home.iotSensors') || 'IoT Sensors',
+            description: t('home.iotSensorsDesc') || 'Monitor soil moisture, temperature, and humidity in real-time',
+            color: 'indigo',
+        },
+        {
             icon: <FiTruck size={32} />,
-            title: t('home.equipmentRental'),
-            description: t('home.equipmentRentalDesc'),
+            title: t('home.equipmentRental') || 'Equipment Rental',
+            description: t('home.equipmentRentalDesc') || 'Find and rent farm equipment near you',
             color: 'orange',
         },
         {
             icon: <FiUsers size={32} />,
-            title: t('home.laborHiring'),
-            description: t('home.laborHiringDesc'),
+            title: t('home.laborHiring') || 'Labor Hiring',
+            description: t('home.laborHiringDesc') || 'Connect with skilled agricultural workers',
             color: 'pink',
         },
         {
             icon: <GiCow size={32} />,
-            title: t('home.livestockManagement'),
-            description: t('home.livestockManagementDesc'),
+            title: t('home.livestockManagement') || 'Livestock Management',
+            description: t('home.livestockManagementDesc') || 'Track and manage your livestock health',
             color: 'amber',
+        },
+        {
+            icon: <FiLayout size={32} />,
+            title: t('home.farmSetup') || 'Farm Setup',
+            description: t('home.farmSetupDesc') || '3D visualization and smart farm planning',
+            color: 'emerald',
+        },
+        {
+            icon: <FiFileText size={32} />,
+            title: t('home.governmentNews') || 'Government News',
+            description: t('home.governmentNewsDesc') || 'Latest agricultural schemes and announcements',
+            color: 'red',
         },
     ];
 
@@ -111,7 +141,7 @@ const Home = () => {
                                 </Button>
                             </Link>
                             <Link to="#features">
-                                <Button variant="ghost" size="xl">
+                                <Button variant="ghost-light" size="xl">
                                     {t('home.exploreFeatures')}
                                 </Button>
                             </Link>

@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import Modal from '../common/Modal';
 import Button from '../common/Button';
 import { TAMIL_NADU_CITIES } from '../../data/tamilNaduCities';
-import { FiSearch, FiCheck, FiPhone, FiDollarSign, FiX } from 'react-icons/fi';
+import { FiSearch, FiCheck, FiPhone, FiDollarSign, FiX, FiNavigation, FiMapPin } from 'react-icons/fi';
 import './LaborRegistrationModal.css';
 
 const SKILL_OPTIONS = [
@@ -21,11 +21,14 @@ const LaborRegistrationModal = ({ isOpen, onClose, onSuccess }) => {
         name: '',
         phone: '',
         location: '',
+        latitude: '',
+        longitude: '',
         dailyWage: '',
     });
     const [selectedSkills, setSelectedSkills] = useState([]);
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
+    const [gettingLocation, setGettingLocation] = useState(false);
     const [citySearch, setCitySearch] = useState('');
     const [showCityDropdown, setShowCityDropdown] = useState(false);
     const cityInputRef = useRef(null);
@@ -45,6 +48,37 @@ const LaborRegistrationModal = ({ isOpen, onClose, onSuccess }) => {
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
+
+    // Get location when modal opens
+    useEffect(() => {
+        if (isOpen && !formData.latitude && !formData.longitude) {
+            getMyLocation();
+        }
+    }, [isOpen]);
+
+    const getMyLocation = () => {
+        if (!navigator.geolocation) {
+            setFormData(prev => ({ ...prev, latitude: '11.1271', longitude: '78.6569' }));
+            return;
+        }
+        setGettingLocation(true);
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                setFormData(prev => ({
+                    ...prev,
+                    latitude: position.coords.latitude.toFixed(6),
+                    longitude: position.coords.longitude.toFixed(6),
+                }));
+                setGettingLocation(false);
+            },
+            (error) => {
+                console.warn('Geolocation error:', error);
+                setGettingLocation(false);
+                setFormData(prev => ({ ...prev, latitude: '11.1271', longitude: '78.6569' }));
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+    };
 
     const validateForm = () => {
         const newErrors = {};
@@ -118,9 +152,13 @@ const LaborRegistrationModal = ({ isOpen, onClose, onSuccess }) => {
             const submitData = {
                 name: formData.name.trim(),
                 phone: formData.phone.trim(),
-                location: formData.location,
-                skills: selectedSkills,
-                dailyWage: Number(formData.dailyWage),
+                location: {
+                    district: formData.location,
+                    latitude: parseFloat(formData.latitude) || 11.1271,
+                    longitude: parseFloat(formData.longitude) || 78.6569,
+                },
+                skills: selectedSkills.map(skill => ({ skill, level: 'intermediate' })),
+                wages: { daily: Number(formData.dailyWage) },
             };
 
             await onSuccess(submitData);
@@ -139,7 +177,7 @@ const LaborRegistrationModal = ({ isOpen, onClose, onSuccess }) => {
     };
 
     const resetForm = () => {
-        setFormData({ name: '', phone: '', location: '', dailyWage: '' });
+        setFormData({ name: '', phone: '', location: '', latitude: '', longitude: '', dailyWage: '' });
         setSelectedSkills([]);
         setCitySearch('');
         setErrors({});
@@ -240,6 +278,28 @@ const LaborRegistrationModal = ({ isOpen, onClose, onSuccess }) => {
                         )}
                     </div>
                     {errors.location && <span className="error-text">{errors.location}</span>}
+                </div>
+
+                {/* GPS Coordinates */}
+                <div className="form-group">
+                    <label>GPS Coordinates</label>
+                    <div className="coordinates-section">
+                        <Button
+                            type="button"
+                            variant="secondary"
+                            onClick={getMyLocation}
+                            loading={gettingLocation}
+                            icon={<FiNavigation />}
+                        >
+                            {gettingLocation ? 'Getting Location...' : 'Get My Location'}
+                        </Button>
+                        {formData.latitude && formData.longitude && (
+                            <div className="coordinates-hint success">
+                                <FiMapPin size={14} />
+                                Location: {formData.latitude}, {formData.longitude}
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 {/* Skills */}

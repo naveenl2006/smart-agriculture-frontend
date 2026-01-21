@@ -23,6 +23,7 @@ import DiseaseDetection from './pages/DiseaseDetection';
 import MarketPrice from './pages/MarketPrice';
 import Irrigation from './pages/Irrigation';
 import EquipmentRental from './pages/EquipmentRental';
+import RentalDetails from './pages/RentalDetails';
 import LaborHiring from './pages/LaborHiring';
 
 import Profile from './pages/Profile';
@@ -139,6 +140,11 @@ function AppRoutes() {
       <Route path="/equipment" element={
         <ProtectedRoute>
           <AppLayout><EquipmentRental /></AppLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/equipment/rental/:id" element={
+        <ProtectedRoute>
+          <AppLayout><RentalDetails /></AppLayout>
         </ProtectedRoute>
       } />
       <Route path="/labor" element={

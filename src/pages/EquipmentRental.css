@@ -1,303 +1,359 @@
-.equipment-page {
-    animation: fadeIn 0.3s ease-out;
-}
-
-.equipment-page .page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    flex-wrap: wrap;
-    gap: var(--space-4);
-}
-
-.header-actions {
-    display: flex;
-    gap: var(--space-3);
-}
-
-/* Sections */
-.registered-vehicles-section,
-.equipment-section {
-    margin-bottom: var(--space-8);
-}
-
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: var(--space-4);
-    margin-bottom: var(--space-5);
-}
-
-.section-title {
-    font-size: var(--text-xl);
-    font-weight: var(--font-bold);
-    color: var(--text-primary);
-    margin: 0;
-}
-
-/* City Filter */
-.city-filter-container {
-    position: relative;
-    width: 250px;
-}
-
-.city-filter-input-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
-
-.filter-search-icon {
-    position: absolute;
-    left: var(--space-3);
-    color: var(--text-muted);
-    pointer-events: none;
-}
-
-.city-filter-input {
-    width: 100%;
-    padding: var(--space-2) var(--space-3) var(--space-2) var(--space-10);
-    border: 1px solid var(--color-gray-200);
-    border-radius: var(--radius-full);
-    font-size: var(--text-sm);
-    transition: all var(--transition-fast);
-}
-
-.city-filter-input:focus {
-    outline: none;
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-}
-
-.clear-filter-btn {
-    position: absolute;
-    right: var(--space-2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 20px;
-    height: 20px;
-    background: var(--color-gray-200);
-    border: none;
-    border-radius: var(--radius-full);
-    color: var(--text-secondary);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-}
-
-.clear-filter-btn:hover {
-    background: var(--color-error);
-    color: white;
-}
-
-.city-filter-dropdown {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    max-height: 240px;
-    overflow-y: auto;
-    background: var(--color-white);
-    border: 1px solid var(--color-gray-200);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
-    z-index: 100;
-    list-style: none;
-    padding: var(--space-2);
-    margin: var(--space-1) 0 0;
-}
-
-.city-filter-dropdown li {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-2) var(--space-3);
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    font-size: var(--text-sm);
-    transition: background var(--transition-fast);
-}
-
-.city-filter-dropdown li:hover {
-    background: var(--color-gray-100);
-}
-
-.city-filter-dropdown li.selected {
-    background: rgba(16, 185, 129, 0.1);
-    color: var(--color-primary);
-    font-weight: var(--font-medium);
-}
-
-/* Vehicles Grid */
-.vehicles-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: var(--space-5);
-}
-
-.vehicle-card {
+/* Equipment Rental Map Page */
+.equipment-rental-map-page {
+    height: calc(100vh - 72px);
     display: flex;
     flex-direction: column;
-    gap: var(--space-4);
-}
-
-.vehicle-image-container {
+    background: var(--color-gray-100);
     position: relative;
-    border-radius: var(--radius-lg);
     overflow: hidden;
 }
 
-.vehicle-image {
-    width: 100%;
-    height: 140px;
-    object-fit: cover;
-    background: var(--color-gray-100);
+/* Map Header */
+.map-header {
+    padding: var(--space-4) var(--space-6);
+    background: linear-gradient(135deg, var(--color-primary) 0%, #059669 100%);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1000;
 }
 
-.vehicle-info h4,
-.vehicle-info .vehicle-title {
+.map-header h1 {
+    font-size: var(--text-xl);
+    font-weight: var(--font-bold);
+    margin: 0;
+}
+
+.map-header p {
+    margin: var(--space-1) 0 0;
+    font-size: var(--text-sm);
+    opacity: 0.9;
+}
+
+/* Map Wrapper */
+.map-wrapper {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+.rental-map {
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+/* Map Loading State */
+.map-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: var(--space-4);
+    color: var(--text-muted);
+}
+
+.loading-spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid var(--color-gray-200);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* User Location Marker Pulse */
+.user-marker-pulse {
+    position: relative;
+}
+
+.user-marker-pulse::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50px;
+    height: 50px;
+    background: rgba(239, 68, 68, 0.3);
+    border-radius: 50%;
+    animation: pulse 2s ease-out infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(1.5);
+        opacity: 0;
+    }
+}
+
+/* Snap Map-style animations */
+@keyframes pulseGlow {
+
+    0%,
+    100% {
+        opacity: 0.6;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+}
+
+@keyframes userPulse {
+    0% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: scale(2);
+        opacity: 0;
+    }
+}
+
+/* Snap Map marker styling */
+.snap-marker {
+    transition: transform 0.2s ease;
+}
+
+.snap-marker:hover {
+    transform: scale(1.15) !important;
+    z-index: 1000 !important;
+}
+
+/* Custom Vehicle Marker */
+.custom-vehicle-marker {
+    background: transparent;
+    border: none;
+}
+
+.marker-container {
+    transition: transform 0.2s ease;
+}
+
+.marker-container:hover {
+    transform: scale(1.2);
+}
+
+.marker-container.nearby {
+    animation: bounce 0.5s ease infinite alternate;
+}
+
+@keyframes bounce {
+    from {
+        transform: translateY(0);
+    }
+
+    to {
+        transform: translateY(-4px);
+    }
+}
+
+/* Vehicle Popup */
+.vehicle-popup {
+    min-width: 200px;
+    text-align: center;
+    padding: var(--space-1);
+}
+
+.vehicle-popup img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-2);
+}
+
+.vehicle-popup h4 {
     margin: 0 0 var(--space-1);
+    font-size: var(--text-base);
+    font-weight: var(--font-bold);
+    color: var(--text-primary);
+    text-transform: capitalize;
+}
+
+.vehicle-popup .popup-price {
     font-size: var(--text-lg);
     font-weight: var(--font-bold);
     color: var(--color-primary);
-    text-transform: capitalize;
+    margin: var(--space-1) 0;
 }
 
-.vehicle-info .vehicle-type {
-    font-size: var(--text-sm);
-    color: var(--text-muted);
-    text-transform: capitalize;
-}
-
-.vehicle-meta {
-    display: flex;
-    justify-content: space-between;
+.vehicle-popup .popup-location {
     font-size: var(--text-sm);
     color: var(--text-secondary);
-}
-
-.vehicle-meta span {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: var(--space-1);
+    margin-bottom: var(--space-2);
 }
 
-.vehicle-meta .location svg {
-    color: var(--color-primary);
+.vehicle-popup .popup-btn {
+    width: 100%;
+    padding: var(--space-2) var(--space-4);
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    cursor: pointer;
+    transition: background var(--transition-fast);
 }
 
-.vehicle-number-tag {
-    font-family: monospace;
+.vehicle-popup .popup-btn:hover {
+    background: #059669;
+}
+
+/* User Popup */
+.user-popup {
+    text-align: center;
+    padding: var(--space-1);
+}
+
+.user-popup strong {
+    display: block;
+    margin-bottom: var(--space-1);
+    color: var(--text-primary);
+}
+
+.user-popup p {
+    margin: 0;
     font-size: var(--text-xs);
     color: var(--text-muted);
 }
 
-.vehicle-pricing {
-    display: flex;
-    justify-content: flex-start;
-    padding: var(--space-3);
-    background: var(--color-gray-50);
-    border-radius: var(--radius-md);
-}
-
-.vehicle-pricing .price .amount {
-    font-size: var(--text-xl);
-    font-weight: var(--font-bold);
-    color: var(--text-primary);
-}
-
-.vehicle-pricing .price .unit {
-    font-size: var(--text-sm);
-    color: var(--text-muted);
-}
-
-/* Contact Info Box */
-.contact-info-box {
-    padding: var(--space-3);
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(14, 165, 115, 0.2));
-    border: 1px solid rgba(16, 185, 129, 0.3);
-    border-radius: var(--radius-lg);
-    animation: fadeIn 0.3s ease-out;
-}
-
-.contact-phone {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-2);
-    font-weight: var(--font-medium);
-    color: var(--color-primary);
-}
-
-.contact-phone svg {
-    flex-shrink: 0;
-}
-
-.contact-phone a {
-    color: var(--color-primary);
-    text-decoration: none;
-    font-size: var(--text-base);
-    font-weight: var(--font-semibold);
-    letter-spacing: 0.5px;
-}
-
-.contact-phone a:hover {
-    text-decoration: underline;
-}
-
-/* No Vehicles Message */
-.no-vehicles-message {
+/* Floating Action Buttons */
+.map-fab-container {
+    position: absolute;
+    right: 16px;
+    bottom: 100px;
     display: flex;
     flex-direction: column;
+    gap: 12px;
+    z-index: 1000;
+}
+
+/* Header Register Button */
+.header-register-btn {
+    background: white !important;
+    color: var(--color-primary) !important;
+    border: 2px solid white !important;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.header-register-btn:hover {
+    background: rgba(255, 255, 255, 0.9) !important;
+    transform: scale(1.02);
+}
+
+.fab-btn {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
     align-items: center;
     justify-content: center;
-    text-align: center;
-    padding: var(--space-10);
-    background: var(--color-gray-50);
-    border-radius: var(--radius-xl);
-    color: var(--text-muted);
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    transition: all var(--transition-fast);
 }
 
-.no-vehicles-message svg {
-    margin-bottom: var(--space-4);
+.fab-btn:hover {
+    transform: scale(1.1);
+}
+
+.fab-btn:disabled {
     opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
 }
 
-.no-vehicles-message h3 {
-    margin: 0 0 var(--space-2);
+.fab-btn.primary {
+    background: linear-gradient(135deg, var(--color-primary) 0%, #059669 100%);
+    color: white;
+}
+
+.fab-btn.secondary {
+    background: white;
+    color: var(--color-primary);
+}
+
+.fab-btn.toggle {
+    width: 48px;
+    height: 48px;
+    background: white;
     color: var(--text-secondary);
-    font-size: var(--text-lg);
 }
 
-.no-vehicles-message p {
-    margin: 0 0 var(--space-5);
-    max-width: 300px;
+.fab-btn.toggle.active {
+    background: var(--color-primary);
+    color: white;
 }
 
-.loading-placeholder {
-    padding: var(--space-8);
-    text-align: center;
-    color: var(--text-muted);
+/* Distance Filter */
+.distance-filter-container {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: white;
+    border-radius: var(--radius-xl);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    padding: var(--space-3);
+    z-index: 1000;
+    min-width: 200px;
 }
 
-/* Original Equipment Styles */
-.filter-bar {
+.filter-label {
     display: flex;
+    align-items: center;
     gap: var(--space-2);
-    margin-bottom: var(--space-6);
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-2);
+}
+
+.filter-label svg {
+    color: var(--color-primary);
+}
+
+.filter-options {
+    display: flex;
+    gap: var(--space-1);
     flex-wrap: wrap;
 }
 
 .filter-btn {
-    padding: var(--space-2) var(--space-4);
-    background: var(--color-white);
-    border: 1px solid var(--color-gray-200);
+    padding: var(--space-1) var(--space-2);
+    border: 2px solid var(--color-gray-200);
+    background: white;
     border-radius: var(--radius-full);
-    font-size: var(--text-sm);
+    font-size: var(--text-xs);
+    font-weight: var(--font-medium);
+    color: var(--text-secondary);
     cursor: pointer;
     transition: all var(--transition-fast);
+    white-space: nowrap;
 }
 
 .filter-btn:hover {
@@ -306,111 +362,288 @@
 }
 
 .filter-btn.active {
-    background: var(--color-primary);
-    color: var(--color-white);
+    background: linear-gradient(135deg, var(--color-primary) 0%, #059669 100%);
     border-color: var(--color-primary);
+    color: white;
 }
 
-.equipment-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: var(--space-5);
+/* Stats Bar */
+.map-stats-bar {
+    position: absolute;
+    left: var(--space-4);
+    bottom: var(--space-4);
+    display: flex;
+    gap: var(--space-3);
+    z-index: 1000;
 }
 
-.equipment-card {
+.stat-item {
     display: flex;
     flex-direction: column;
-    gap: var(--space-4);
+    align-items: center;
+    padding: var(--space-2) var(--space-4);
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    min-width: 70px;
 }
 
-.equipment-image {
-    height: 120px;
-    background: var(--color-gray-100);
-    border-radius: var(--radius-lg);
+.stat-item.nearby {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+
+.stat-item.nearby .stat-value,
+.stat-item.nearby .stat-label {
+    color: white;
+}
+
+.stat-item.error {
+    background: #fef2f2;
+}
+
+.stat-value {
+    font-size: var(--text-xl);
+    font-weight: var(--font-bold);
+    color: var(--text-primary);
+}
+
+.stat-label {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+/* Vehicle Details Panel */
+.vehicle-details-panel {
+    position: absolute;
+    left: var(--space-4);
+    top: var(--space-4);
+    width: 320px;
+    background: white;
+    border-radius: var(--radius-xl);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    z-index: 1001;
+    overflow: hidden;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.panel-close-btn {
+    position: absolute;
+    top: var(--space-3);
+    right: var(--space-3);
+    width: 32px;
+    height: 32px;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--color-gray-400);
-    position: relative;
+    cursor: pointer;
+    z-index: 10;
+    transition: background var(--transition-fast);
 }
 
-.unavailable-badge {
+.panel-close-btn:hover {
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.panel-image {
+    position: relative;
+    height: 180px;
+}
+
+.panel-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.distance-badge {
     position: absolute;
-    top: var(--space-2);
-    right: var(--space-2);
+    bottom: var(--space-2);
+    left: var(--space-2);
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
     padding: var(--space-1) var(--space-2);
-    background: var(--color-error);
+    background: rgba(0, 0, 0, 0.7);
     color: white;
     font-size: var(--text-xs);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-full);
 }
 
-.equipment-info h4 {
-    margin: 0 0 var(--space-1);
+.panel-content {
+    padding: var(--space-4);
 }
 
-.equipment-type {
-    font-size: var(--text-sm);
-    color: var(--text-muted);
+.panel-title {
+    margin: 0 0 var(--space-3);
+    font-size: var(--text-lg);
+    font-weight: var(--font-bold);
+    color: var(--text-primary);
     text-transform: capitalize;
 }
 
-.equipment-meta {
+.panel-info {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
     font-size: var(--text-sm);
     color: var(--text-secondary);
 }
 
-.equipment-meta span {
-    display: flex;
-    align-items: center;
-    gap: var(--space-1);
+.info-item svg {
+    color: var(--color-primary);
 }
 
-.equipment-pricing {
-    display: flex;
-    justify-content: space-between;
-    padding: var(--space-3);
-    background: var(--color-gray-50);
+.info-item a {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: var(--font-medium);
+}
+
+.info-item a:hover {
+    text-decoration: underline;
+}
+
+.availability-status {
+    padding: var(--space-2) var(--space-3);
     border-radius: var(--radius-md);
-}
-
-.price .amount {
-    font-size: var(--text-lg);
-    font-weight: var(--font-bold);
-}
-
-.price .unit {
     font-size: var(--text-sm);
-    color: var(--text-muted);
+    font-weight: var(--font-medium);
+    text-align: center;
+    margin-bottom: var(--space-3);
 }
 
-.price.secondary .amount {
-    font-size: var(--text-base);
+.availability-status.available {
+    background: #d1fae5;
+    color: #065f46;
 }
 
-/* Responsive */
+.availability-status.unavailable {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* Override Leaflet popup styles */
+.leaflet-popup-content-wrapper {
+    border-radius: var(--radius-lg) !important;
+    padding: 0 !important;
+    overflow: hidden;
+}
+
+.leaflet-popup-content {
+    margin: var(--space-3) !important;
+}
+
+.leaflet-popup-close-button {
+    top: 8px !important;
+    right: 8px !important;
+}
+
+/* Custom Leaflet Controls */
+.leaflet-control-zoom {
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+    border-radius: var(--radius-lg) !important;
+    overflow: hidden;
+}
+
+.leaflet-control-zoom a {
+    background: white !important;
+    color: var(--text-primary) !important;
+    border: none !important;
+}
+
+.leaflet-control-zoom a:hover {
+    background: var(--color-gray-50) !important;
+}
+
+/* Mobile Responsive */
 @media (max-width: 768px) {
-    .page-header {
-        flex-direction: column;
-        align-items: stretch;
+    .map-header {
+        padding: var(--space-3) var(--space-4);
     }
 
-    .header-actions {
-        justify-content: stretch;
+    .map-header h1 {
+        font-size: var(--text-lg);
     }
 
-    .header-actions button {
-        flex: 1;
+    .map-header p {
+        display: none;
     }
 
-    .section-header {
-        flex-direction: column;
-        align-items: stretch;
+    .vehicle-details-panel {
+        left: var(--space-2);
+        right: var(--space-2);
+        width: auto;
+        top: auto;
+        bottom: var(--space-20);
+        max-height: 50vh;
+        overflow-y: auto;
     }
 
-    .city-filter-container {
-        width: 100%;
+    .panel-image {
+        height: 120px;
     }
+
+    .map-fab-container {
+        right: var(--space-2);
+        bottom: var(--space-4);
+    }
+
+    .fab-btn {
+        width: 48px;
+        height: 48px;
+    }
+
+    .fab-btn.toggle {
+        width: 40px;
+        height: 40px;
+    }
+
+    .map-stats-bar {
+        left: var(--space-2);
+        bottom: var(--space-2);
+        flex-wrap: wrap;
+    }
+
+    .stat-item {
+        padding: var(--space-1) var(--space-2);
+        min-width: auto;
+    }
+
+    .stat-value {
+        font-size: var(--text-lg);
+    }
+}
+
+/* Hide default equipment styles (no longer needed) */
+.equipment-page,
+.registered-vehicles-section,
+.vehicles-grid,
+.vehicle-card {
+    display: none;
 }

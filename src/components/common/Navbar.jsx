@@ -1,42 +1,15 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useLanguage } from '../../context/LanguageContext';
 import {
-    FiMenu, FiX, FiUser, FiLogOut, FiBell, FiSearch, FiSun, FiMoon, FiCheck
+    FiMenu, FiX, FiUser, FiLogOut, FiBell, FiSearch, FiSun, FiMoon, FiCheck, FiLoader
 } from 'react-icons/fi';
 import { GiWheat } from 'react-icons/gi';
 import LanguageToggle from './LanguageToggle';
+import { getNotifications, markNotificationAsRead, markAllNotificationsAsRead } from '../../services/notificationService';
 import './Navbar.css';
-
-// Initial notifications (in production, fetch from API)
-const INITIAL_NOTIFICATIONS = [
-    {
-        id: 1,
-        icon: '🌱',
-        iconType: 'success',
-        message: 'Crop recommendation ready for your land',
-        time: '2 hours ago',
-        read: false
-    },
-    {
-        id: 2,
-        icon: '💧',
-        iconType: 'warning',
-        message: 'Soil moisture level low - Zone A',
-        time: '4 hours ago',
-        read: false
-    },
-    {
-        id: 3,
-        icon: '📈',
-        iconType: 'info',
-        message: 'Tomato prices increased by 15%',
-        time: '1 day ago',
-        read: true
-    }
-];
 
 const Navbar = ({ onMenuClick, isSidebarOpen }) => {
     const { user, isAuthenticated, logout } = useAuth();
@@ -45,12 +18,44 @@ const Navbar = ({ onMenuClick, isSidebarOpen }) => {
     const navigate = useNavigate();
     const [showDropdown, setShowDropdown] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
-    const [notifications, setNotifications] = useState(INITIAL_NOTIFICATIONS);
+    const [notifications, setNotifications] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
     const notificationRef = useRef(null);
     const dropdownRef = useRef(null);
 
     // Calculate unread count
     const unreadCount = notifications.filter(n => !n.read).length;
+
+    // Fetch notifications from API
+    const fetchNotifications = useCallback(async () => {
+        if (!isAuthenticated) return;
+
+        try {
+            setLoading(true);
+            setError(null);
+            const response = await getNotifications();
+            if (response.success) {
+                setNotifications(response.data.notifications || []);
+            }
+        } catch (err) {
+            console.error('Error fetching notifications:', err);
+            setError('Failed to load notifications');
+        } finally {
+            setLoading(false);
+        }
+    }, [isAuthenticated]);
+
+    // Initial fetch and periodic refresh
+    useEffect(() => {
+        if (isAuthenticated) {
+            fetchNotifications();
+
+            // Refresh notifications every 5 minutes
+            const interval = setInterval(fetchNotifications, 5 * 60 * 1000);
+            return () => clearInterval(interval);
+        }
+    }, [isAuthenticated, fetchNotifications]);
 
     // Close dropdowns when clicking outside
     useEffect(() => {
@@ -72,17 +77,46 @@ const Navbar = ({ onMenuClick, isSidebarOpen }) => {
     };
 
     // Mark single notification as read
-    const markAsRead = (id) => {
-        setNotifications(prev =>
-            prev.map(n => n.id === id ? { ...n, read: true } : n)
-        );
+    const markAsRead = async (id) => {
+        try {
+            await markNotificationAsRead(id);
+            setNotifications(prev =>
+                prev.map(n => n.id === id ? { ...n, read: true } : n)
+            );
+        } catch (err) {
+            console.error('Error marking notification as read:', err);
+        }
     };
 
     // Mark all notifications as read
-    const markAllAsRead = () => {
-        setNotifications(prev =>
-            prev.map(n => ({ ...n, read: true }))
-        );
+    const markAllAsRead = async () => {
+        try {
+            await markAllNotificationsAsRead();
+            setNotifications(prev =>
+                prev.map(n => ({ ...n, read: true }))
+            );
+        } catch (err) {
+            console.error('Error marking all notifications as read:', err);
+        }
+    };
+
+    // Handle notification click - navigate to action URL if present
+    const handleNotificationClick = (notification) => {
+        markAsRead(notification.id);
+        if (notification.actionUrl) {
+            setShowNotifications(false);
+            navigate(notification.actionUrl);
+        }
+    };
+
+    // Get icon type class for styling
+    const getIconTypeClass = (iconType) => {
+        switch (iconType) {
+            case 'critical': return 'critical';
+            case 'warning': return 'warning';
+            case 'success': return 'success';
+            default: return 'info';
+        }
     };
 
     return (
@@ -141,33 +175,50 @@ const Navbar = ({ onMenuClick, isSidebarOpen }) => {
                                     )}
                                 </div>
                                 <div className="notification-list">
-                                    {notifications.map((notification) => (
-                                        <div
-                                            key={notification.id}
-                                            className={`notification-item ${!notification.read ? 'unread' : ''}`}
-                                            onClick={() => markAsRead(notification.id)}
-                                        >
-                                            <div className={`notification-icon ${notification.iconType}`}>
-                                                {notification.icon}
-                                            </div>
-                                            <div className="notification-content">
-                                                <p>{notification.message}</p>
-                                                <span className="notification-time">{notification.time}</span>
-                                            </div>
-                                            {!notification.read && (
-                                                <button
-                                                    className="mark-read-btn"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        markAsRead(notification.id);
-                                                    }}
-                                                    title="Mark as read"
-                                                >
-                                                    <FiCheck size={14} />
-                                                </button>
-                                            )}
+                                    {loading ? (
+                                        <div className="notification-loading">
+                                            <FiLoader className="spin" size={24} />
+                                            <span>Loading notifications...</span>
                                         </div>
-                                    ))}
+                                    ) : error ? (
+                                        <div className="notification-error">
+                                            <span>{error}</span>
+                                            <button onClick={fetchNotifications}>Retry</button>
+                                        </div>
+                                    ) : notifications.length === 0 ? (
+                                        <div className="notification-empty">
+                                            <FiBell size={32} />
+                                            <span>No notifications yet</span>
+                                        </div>
+                                    ) : (
+                                        notifications.map((notification) => (
+                                            <div
+                                                key={notification.id}
+                                                className={`notification-item ${!notification.read ? 'unread' : ''} ${notification.type}`}
+                                                onClick={() => handleNotificationClick(notification)}
+                                            >
+                                                <div className={`notification-icon ${getIconTypeClass(notification.iconType)}`}>
+                                                    {notification.icon}
+                                                </div>
+                                                <div className="notification-content">
+                                                    <p>{notification.message}</p>
+                                                    <span className="notification-time">{notification.time}</span>
+                                                </div>
+                                                {!notification.read && (
+                                                    <button
+                                                        className="mark-read-btn"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            markAsRead(notification.id);
+                                                        }}
+                                                        title="Mark as read"
+                                                    >
+                                                        <FiCheck size={14} />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        ))
+                                    )}
                                 </div>
                                 <Link
                                     to="/notifications"
@@ -229,4 +280,3 @@ const Navbar = ({ onMenuClick, isSidebarOpen }) => {
 };
 
 export default Navbar;
-

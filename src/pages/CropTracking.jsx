@@ -206,6 +206,7 @@ const CropTracking = () => {
                 </button>
                 <button className="refresh-btn" onClick={fetchSchedules}>
                     <FiRefreshCw className={loading ? 'spin' : ''} />
+                    <span>Refresh</span>
                 </button>
             </div>
 

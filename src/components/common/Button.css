@@ -52,6 +52,17 @@
     color: var(--color-primary);
 }
 
+.btn-ghost-light {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.btn-ghost-light:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.25);
+    color: white;
+}
+
 .btn-danger {
     background: var(--color-error);
     color: var(--color-white);

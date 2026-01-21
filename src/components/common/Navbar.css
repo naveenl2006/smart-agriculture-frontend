@@ -7,7 +7,7 @@
     border-bottom: 1px solid var(--color-gray-200);
     position: sticky;
     top: 0;
-    z-index: var(--z-sticky);
+    z-index: 9999;
     height: 64px;
 }
 
@@ -222,6 +222,85 @@
 
 .notification-icon.info {
     background: #dbeafe;
+}
+
+.notification-icon.critical {
+    background: #fee2e2;
+}
+
+/* Notification type indicators */
+.notification-item.weather {
+    border-left: 3px solid #60a5fa;
+}
+
+.notification-item.crop {
+    border-left: 3px solid var(--color-primary);
+}
+
+.notification-item.market {
+    border-left: 3px solid #f59e0b;
+}
+
+/* Loading state */
+.notification-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-8);
+    color: var(--text-muted);
+    gap: var(--space-3);
+}
+
+.notification-loading .spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Error state */
+.notification-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-6);
+    color: var(--color-error);
+    gap: var(--space-3);
+    text-align: center;
+}
+
+.notification-error button {
+    padding: var(--space-2) var(--space-4);
+    background: var(--color-error);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: var(--text-sm);
+}
+
+.notification-error button:hover {
+    opacity: 0.9;
+}
+
+/* Empty state */
+.notification-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-8);
+    color: var(--text-muted);
+    gap: var(--space-3);
 }
 
 .notification-content p {

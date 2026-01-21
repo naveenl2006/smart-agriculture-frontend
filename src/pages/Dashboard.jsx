@@ -6,22 +6,41 @@ import Card from '../components/common/Card';
 import {
     FiDroplet, FiSun, FiTrendingUp, FiTrendingDown, FiAlertCircle,
     FiArrowRight, FiCalendar, FiActivity, FiCloud, FiFileText,
-    FiTruck, FiUsers, FiCamera, FiSettings, FiGrid, FiClock,
-    FiCheckCircle, FiZap
+    FiTruck, FiUsers, FiCamera, FiGrid, FiClock,
+    FiCheckCircle, FiZap, FiWifi, FiWifiOff
 } from 'react-icons/fi';
-import { GiPlantRoots, GiCow, GiWheat, GiFarmTractor } from 'react-icons/gi';
-import { marketService, irrigationService, governmentNewsService } from '../services/services';
+import { GiPlantRoots, GiWheat, GiFarmTractor } from 'react-icons/gi';
+import {
+    marketService,
+    irrigationService,
+    governmentNewsService,
+    iotService,
+    cropScheduleService,
+    weatherService
+} from '../services/services';
 import './Dashboard.css';
 
 const Dashboard = () => {
     const { user } = useAuth();
     const { t } = useLanguage();
+
+    // State for all dynamic data
     const [marketPrices, setMarketPrices] = useState([]);
-    const [sensorData, setSensorData] = useState([]);
     const [recentNews, setRecentNews] = useState([]);
-    const [weatherData, setWeatherData] = useState(null);
-    const [irrigationSchedules, setIrrigationSchedules] = useState([]);
     const [loading, setLoading] = useState(true);
+
+    // Dynamic stats state
+    const [activeCropsCount, setActiveCropsCount] = useState(0);
+    const [soilMoistureData, setSoilMoistureData] = useState(null);
+    const [hasIoTDevices, setHasIoTDevices] = useState(false);
+    const [currentTemperature, setCurrentTemperature] = useState(null);
+    const [irrigationSchedulesCount, setIrrigationSchedulesCount] = useState(0);
+    const [activeSchedulesCount, setActiveSchedulesCount] = useState(0);
+
+    // Activities and tasks
+    const [recentActivities, setRecentActivities] = useState([]);
+    const [todaysTasks, setTodaysTasks] = useState([]);
+    const [weatherAlerts, setWeatherAlerts] = useState([]);
 
     useEffect(() => {
         fetchDashboardData();
@@ -29,16 +48,71 @@ const Dashboard = () => {
 
     const fetchDashboardData = async () => {
         try {
-            const [pricesRes, sensorsRes, newsRes, schedulesRes] = await Promise.all([
+            const [
+                pricesRes,
+                newsRes,
+                schedulesRes,
+                iotRes,
+                cropSchedulesRes,
+                weatherRes,
+                weatherAlertsRes,
+                remindersRes
+            ] = await Promise.all([
                 marketService.getTodayPrices().catch(() => ({ data: { prices: [] } })),
-                irrigationService.getSensorData().catch(() => ({ data: { sensors: [] } })),
                 governmentNewsService.getNews().catch(() => ({ data: { news: [] } })),
                 irrigationService.getSchedules().catch(() => ({ data: [] })),
+                iotService.getRealtimeSensors().catch(() => ({ success: false, data: { sensors: [] } })),
+                cropScheduleService.getSchedules('active').catch(() => ({ success: false, count: 0, data: [] })),
+                weatherService.getCurrentWeather().catch(() => ({ success: false, data: null })),
+                weatherService.getAlerts().catch(() => ({ success: false, data: { alerts: [] } })),
+                cropScheduleService.getReminders().catch(() => ({ success: false, data: [] })),
             ]);
+
+            // Market prices
             setMarketPrices(pricesRes.data?.prices?.slice(0, 4) || []);
-            setSensorData(sensorsRes.data?.sensors || []);
+
+            // Government news
             setRecentNews(newsRes.data?.news?.slice(0, 3) || []);
-            setIrrigationSchedules(schedulesRes.data?.slice(0, 3) || []);
+
+            // Irrigation schedules
+            const irrigationData = schedulesRes.data || [];
+            setIrrigationSchedulesCount(irrigationData.length);
+            setActiveSchedulesCount(irrigationData.filter(s => s.isActive).length);
+
+            // IoT sensor data
+            const sensors = iotRes.data?.sensors || [];
+            setHasIoTDevices(sensors.length > 0);
+            const soilMoistureSensor = sensors.find(s => s.sensorType === 'soil_moisture');
+            setSoilMoistureData(soilMoistureSensor || null);
+
+            // Active crops count
+            setActiveCropsCount(cropSchedulesRes.count || 0);
+
+            // Weather data
+            if (weatherRes.success && weatherRes.data?.current) {
+                setCurrentTemperature(weatherRes.data.current);
+            }
+
+            // Weather alerts
+            if (weatherAlertsRes.success && weatherAlertsRes.data?.alerts) {
+                setWeatherAlerts(weatherAlertsRes.data.alerts.slice(0, 3));
+            }
+
+            // Today's tasks from reminders
+            if (remindersRes.success && remindersRes.data) {
+                const tasks = remindersRes.data.slice(0, 5).map(reminder => ({
+                    task: `${reminder.activityName} - ${reminder.cropName}`,
+                    completed: false,
+                    isOverdue: reminder.isOverdue,
+                    isToday: reminder.isToday,
+                    scheduleId: reminder.scheduleId
+                }));
+                setTodaysTasks(tasks);
+            }
+
+            // Generate recent activities from various sources
+            generateRecentActivities(cropSchedulesRes.data || [], irrigationData, weatherAlertsRes.data?.alerts || []);
+
         } catch (error) {
             console.error('Dashboard data fetch error:', error);
         } finally {
@@ -46,34 +120,98 @@ const Dashboard = () => {
         }
     };
 
+    // Generate recent activities from user data
+    const generateRecentActivities = (cropSchedules, irrigationSchedules, alerts) => {
+        const activities = [];
+
+        // Add crop-related activities
+        cropSchedules.slice(0, 2).forEach(schedule => {
+            activities.push({
+                type: 'crop',
+                message: `Tracking ${schedule.cropName} - ${schedule.progressPercentage || 0}% complete`,
+                time: getRelativeTime(schedule.updatedAt || schedule.createdAt),
+                icon: <GiPlantRoots />,
+                color: '#22c55e'
+            });
+        });
+
+        // Add irrigation activities
+        irrigationSchedules.slice(0, 2).forEach(schedule => {
+            if (schedule.isActive) {
+                activities.push({
+                    type: 'irrigation',
+                    message: `Irrigation schedule: ${schedule.name || 'Zone'} - ${schedule.time || 'Scheduled'}`,
+                    time: getRelativeTime(schedule.updatedAt || schedule.createdAt),
+                    icon: <FiDroplet />,
+                    color: '#06b6d4'
+                });
+            }
+        });
+
+        // Add weather alerts
+        alerts.slice(0, 2).forEach(alert => {
+            activities.push({
+                type: 'alert',
+                message: alert.title || alert.message,
+                time: getRelativeTime(alert.createdAt),
+                icon: <FiCloud />,
+                color: alert.severity === 'high' ? '#ef4444' : '#f59e0b'
+            });
+        });
+
+        // Sort by time (most recent first) and limit
+        setRecentActivities(activities.slice(0, 4));
+    };
+
+    // Helper to get relative time
+    const getRelativeTime = (dateString) => {
+        if (!dateString) return 'Recently';
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+        const diffDays = Math.floor(diffHours / 24);
+
+        if (diffHours < 1) return 'Just now';
+        if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+        if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+        return date.toLocaleDateString();
+    };
+
     // Current date and time for greeting
     const currentHour = new Date().getHours();
     const greeting = currentHour < 12 ? 'Good Morning' : currentHour < 17 ? 'Good Afternoon' : 'Good Evening';
 
-    // Live stats from sensors
+    // Dynamic stats cards (no livestock)
     const statsCards = [
         {
             title: t('dashboard.activeCrops') || 'Active Crops',
-            value: '5',
-            change: '+2 this season',
-            trend: 'up',
+            value: activeCropsCount.toString(),
+            change: activeCropsCount > 0 ? `${activeCropsCount} being tracked` : 'No crops yet',
+            trend: activeCropsCount > 0 ? 'up' : 'stable',
             icon: <GiPlantRoots size={24} />,
             color: 'green',
             link: '/crops/tracking'
         },
         {
             title: t('dashboard.soilMoisture') || 'Soil Moisture',
-            value: `${sensorData.find(s => s.sensorType === 'soil_moisture')?.value?.toFixed(0) || 62}%`,
-            change: 'Optimal Range',
-            trend: 'stable',
-            icon: <FiDroplet size={24} />,
+            value: hasIoTDevices && soilMoistureData
+                ? `${soilMoistureData.value?.toFixed(0) || '--'}%`
+                : '--',
+            change: hasIoTDevices
+                ? (soilMoistureData?.status || 'Checking...')
+                : 'No IoT devices',
+            trend: hasIoTDevices ? 'stable' : 'warning',
+            icon: hasIoTDevices ? <FiWifi size={24} /> : <FiWifiOff size={24} />,
             color: 'blue',
             link: '/irrigation'
         },
         {
             title: t('dashboard.temperature') || 'Temperature',
-            value: `${sensorData.find(s => s.sensorType === 'temperature')?.value?.toFixed(1) || 28}°C`,
-            change: 'Normal',
+            value: currentTemperature
+                ? `${currentTemperature.temperature}°C`
+                : '--°C',
+            change: currentTemperature?.condition || 'Loading...',
             trend: 'stable',
             icon: <FiSun size={24} />,
             color: 'orange',
@@ -81,27 +219,18 @@ const Dashboard = () => {
         },
         {
             title: 'Irrigation Schedules',
-            value: `${irrigationSchedules.length || 3}`,
-            change: `${irrigationSchedules.filter(s => s.isActive).length || 2} Active`,
-            trend: 'stable',
+            value: irrigationSchedulesCount.toString(),
+            change: `${activeSchedulesCount} Active`,
+            trend: irrigationSchedulesCount > 0 ? 'stable' : 'warning',
             icon: <FiCalendar size={24} />,
             color: 'cyan',
             link: '/irrigation'
         },
         {
-            title: t('dashboard.livestock') || 'Livestock',
-            value: '24',
-            change: '3 need attention',
-            trend: 'warning',
-            icon: <GiCow size={24} />,
-            color: 'amber',
-            link: '/farm-setup'
-        },
-        {
             title: 'Market Trend',
-            value: '₹38/kg',
-            change: '+5% today',
-            trend: 'up',
+            value: marketPrices.length > 0 ? `₹${marketPrices[0]?.price?.modal || marketPrices[0]?.price || '--'}/kg` : '₹--/kg',
+            change: marketPrices.length > 0 ? 'Live prices' : 'No data',
+            trend: marketPrices.length > 0 ? 'up' : 'stable',
             icon: <FiTrendingUp size={24} />,
             color: 'purple',
             link: '/market'
@@ -208,20 +337,16 @@ const Dashboard = () => {
         },
     ];
 
-    // Mock recent activities
-    const recentActivities = [
-        { type: 'irrigation', message: 'Zone A irrigation completed', time: '2 hours ago', icon: <FiDroplet />, color: '#06b6d4' },
-        { type: 'alert', message: 'Weather alert: Rain expected tomorrow', time: '3 hours ago', icon: <FiCloud />, color: '#f59e0b' },
-        { type: 'market', message: 'Tomato prices increased by 5%', time: '5 hours ago', icon: <FiTrendingUp />, color: '#8b5cf6' },
-        { type: 'schedule', message: 'Fertilizer application due for Zone B', time: '6 hours ago', icon: <FiCalendar />, color: '#3b82f6' },
+    // Default activities if none available
+    const displayActivities = recentActivities.length > 0 ? recentActivities : [
+        { type: 'info', message: 'Welcome! Start by adding crops or setting up irrigation.', time: 'Just now', icon: <FiZap />, color: '#8b5cf6' }
     ];
 
-    // Today's tasks
-    const todaysTasks = [
-        { task: 'Check soil moisture in Zone C', completed: true },
-        { task: 'Apply pesticide to tomato field', completed: false },
-        { task: 'Review irrigation schedule', completed: true },
-        { task: 'Check market prices for rice', completed: false },
+    // Default tasks if none available
+    const displayTasks = todaysTasks.length > 0 ? todaysTasks : [
+        { task: 'Create your first crop schedule', completed: false },
+        { task: 'Set up irrigation schedules', completed: false },
+        { task: 'Connect IoT devices for monitoring', completed: false },
     ];
 
     return (
@@ -245,8 +370,10 @@ const Dashboard = () => {
                         <div className="hero-stat">
                             <FiCheckCircle className="hero-stat-icon success" />
                             <div>
-                                <span className="hero-stat-value">85%</span>
-                                <span className="hero-stat-label">Farm Health</span>
+                                <span className="hero-stat-value">
+                                    {activeCropsCount > 0 ? `${Math.min(100, activeCropsCount * 20)}%` : '--'}
+                                </span>
+                                <span className="hero-stat-label">Farm Activity</span>
                             </div>
                         </div>
                     </div>
@@ -302,7 +429,7 @@ const Dashboard = () => {
                 {/* Recent Activity */}
                 <Card title="Recent Activity" icon={<FiActivity />}>
                     <div className="activity-list">
-                        {recentActivities.map((activity, index) => (
+                        {displayActivities.map((activity, index) => (
                             <div key={index} className="activity-item">
                                 <div className="activity-icon" style={{ backgroundColor: `${activity.color}20`, color: activity.color }}>
                                     {activity.icon}
@@ -319,17 +446,22 @@ const Dashboard = () => {
                 {/* Today's Tasks */}
                 <Card title="Today's Tasks" icon={<FiCheckCircle />}>
                     <div className="tasks-list">
-                        {todaysTasks.map((item, index) => (
-                            <div key={index} className={`task-item ${item.completed ? 'completed' : ''}`}>
+                        {displayTasks.map((item, index) => (
+                            <div key={index} className={`task-item ${item.completed ? 'completed' : ''} ${item.isOverdue ? 'overdue' : ''}`}>
                                 <div className={`task-checkbox ${item.completed ? 'checked' : ''}`}>
                                     {item.completed && <FiCheckCircle />}
+                                    {item.isOverdue && !item.completed && <FiAlertCircle />}
                                 </div>
-                                <span className="task-text">{item.task}</span>
+                                <span className="task-text">
+                                    {item.task}
+                                    {item.isToday && <span className="today-badge">Today</span>}
+                                    {item.isOverdue && <span className="overdue-badge">Overdue</span>}
+                                </span>
                             </div>
                         ))}
                     </div>
                     <div className="tasks-summary">
-                        <span>{todaysTasks.filter(t => t.completed).length}/{todaysTasks.length} completed</span>
+                        <span>{displayTasks.filter(t => t.completed).length}/{displayTasks.length} completed</span>
                     </div>
                 </Card>
 
@@ -348,56 +480,34 @@ const Dashboard = () => {
                                 </span>
                             </div>
                         )) : (
-                            <>
-                                <div className="price-item">
-                                    <span className="commodity-name">🍅 Tomato</span>
-                                    <span className="commodity-price">₹38/kg</span>
-                                    <span className="price-change up">+5%</span>
-                                </div>
-                                <div className="price-item">
-                                    <span className="commodity-name">🧅 Onion</span>
-                                    <span className="commodity-price">₹32/kg</span>
-                                    <span className="price-change down">-2%</span>
-                                </div>
-                                <div className="price-item">
-                                    <span className="commodity-name">🥔 Potato</span>
-                                    <span className="commodity-price">₹28/kg</span>
-                                    <span className="price-change up">+3%</span>
-                                </div>
-                                <div className="price-item">
-                                    <span className="commodity-name">🌾 Rice</span>
-                                    <span className="commodity-price">₹42/kg</span>
-                                    <span className="price-change up">+1%</span>
-                                </div>
-                            </>
+                            <div className="empty-state-small">
+                                <p>No market data available</p>
+                                <Link to="/market" className="link-btn">View Market Prices</Link>
+                            </div>
                         )}
                     </div>
                 </Card>
 
-                {/* Alerts & Reminders */}
-                <Card title="Alerts & Reminders" icon={<FiAlertCircle />}>
+                {/* Weather Alerts */}
+                <Card title="Weather Alerts" icon={<FiAlertCircle />}>
                     <div className="alerts-list">
-                        <div className="alert-item warning">
-                            <div className="alert-icon">⚠️</div>
-                            <div className="alert-content">
-                                <strong>Low Soil Moisture</strong>
-                                <p>Zone C needs irrigation soon</p>
+                        {weatherAlerts.length > 0 ? weatherAlerts.map((alert, index) => (
+                            <div key={index} className={`alert-item ${alert.severity || 'info'}`}>
+                                <div className="alert-icon">
+                                    {alert.severity === 'high' ? '🔴' : alert.severity === 'medium' ? '🟡' : '🔵'}
+                                </div>
+                                <div className="alert-content">
+                                    <strong>{alert.title || 'Weather Alert'}</strong>
+                                    <p>{alert.message || alert.description}</p>
+                                </div>
                             </div>
-                        </div>
-                        <div className="alert-item info">
-                            <div className="alert-icon">🌧️</div>
-                            <div className="alert-content">
-                                <strong>Rain Forecast</strong>
-                                <p>Light rain expected tomorrow</p>
+                        )) : (
+                            <div className="empty-state-small">
+                                <div className="alert-icon">✅</div>
+                                <p>No active weather alerts</p>
+                                <span className="text-muted">All clear for your area</span>
                             </div>
-                        </div>
-                        <div className="alert-item success">
-                            <div className="alert-icon">📰</div>
-                            <div className="alert-content">
-                                <strong>New Subsidy Available</strong>
-                                <p>Check Government News for details</p>
-                            </div>
-                        </div>
+                        )}
                     </div>
                 </Card>
             </div>

@@ -242,7 +242,7 @@ const CropRecommendation = () => {
                                     <input
                                         type="number"
                                         name="landSize"
-                                        placeholder="e.g., 5"
+                                        placeholder="e.g.,5"
                                         value={formData.landSize}
                                         onChange={handleChange}
                                     />

@@ -163,6 +163,11 @@ export const equipmentService = {
         const response = await api.get('/vehicles', { params });
         return response.data;
     },
+
+    getVehicleById: async (id) => {
+        const response = await api.get(`/vehicles/${id}`);
+        return response.data;
+    },
 };
 
 export const laborService = {
@@ -363,6 +368,66 @@ export const iotService = {
     // Real-time sensor data
     getRealtimeSensors: async () => {
         const response = await api.get('/iot/sensors/realtime');
+        return response.data;
+    },
+};
+
+export const cropScheduleService = {
+    getSchedules: async (status = null) => {
+        const params = status ? { status } : {};
+        const response = await api.get('/crop-schedules', { params });
+        return response.data;
+    },
+
+    getScheduleById: async (id) => {
+        const response = await api.get(`/crop-schedules/${id}`);
+        return response.data;
+    },
+
+    getReminders: async () => {
+        const response = await api.get('/crop-schedules/reminders');
+        return response.data;
+    },
+
+    createSchedule: async (scheduleData) => {
+        const response = await api.post('/crop-schedules', scheduleData);
+        return response.data;
+    },
+
+    updateActivityStatus: async (scheduleId, activityId, status) => {
+        const response = await api.patch(`/crop-schedules/${scheduleId}/activities/${activityId}`, { status });
+        return response.data;
+    },
+
+    deleteSchedule: async (id) => {
+        const response = await api.delete(`/crop-schedules/${id}`);
+        return response.data;
+    },
+};
+
+export const weatherService = {
+    getCurrentWeather: async () => {
+        const response = await api.get('/weather');
+        return response.data;
+    },
+
+    getForecast: async () => {
+        const response = await api.get('/weather/forecast');
+        return response.data;
+    },
+
+    getAlerts: async () => {
+        const response = await api.get('/weather/alerts');
+        return response.data;
+    },
+
+    markAlertAsRead: async (id) => {
+        const response = await api.patch(`/weather/alerts/${id}/read`);
+        return response.data;
+    },
+
+    refreshAlerts: async () => {
+        const response = await api.post('/weather/alerts/refresh');
         return response.data;
     },
 };

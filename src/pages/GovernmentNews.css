@@ -32,7 +32,9 @@
 .government-news-page .refresh-btn {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
+    min-width: 120px;
     padding: 0.75rem 1.25rem;
     background: linear-gradient(135deg, #10b981, #059669);
     color: white;

@@ -809,6 +809,7 @@ const CropScheduler = () => {
                     <h2>📋 My Saved Schedules</h2>
                     <button className="refresh-btn" onClick={fetchSavedSchedules} disabled={loadingSchedules}>
                         <FiRefreshCw className={loadingSchedules ? 'spin' : ''} />
+                        <span>Refresh</span>
                     </button>
                 </div>
 
