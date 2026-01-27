@@ -215,7 +215,7 @@ export const translations = {
             features: 'Features',
             contact: 'Contact',
             privacy: 'Privacy',
-            copyright: '© 2024 AgriNanban. All rights reserved.',
+            copyright: '© 2026 AgriNanban. All rights reserved.',
             goToDashboard: 'Go to Dashboard',
         },
         // Crops

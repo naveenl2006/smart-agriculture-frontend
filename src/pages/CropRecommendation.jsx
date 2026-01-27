@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import Card from '../components/common/Card';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
-import { FiDroplet, FiSun, FiLayers, FiCalendar } from 'react-icons/fi';
-import { GiPlantRoots } from 'react-icons/gi';
+import { FiDroplet, FiSun, FiLayers, FiCalendar, FiMapPin, FiActivity } from 'react-icons/fi';
+import { GiPlantRoots, GiSatelliteCommunication } from 'react-icons/gi';
+import { cropService } from '../services/services';
 import './CropRecommendation.css';
 
 // Crop images mapping
@@ -169,6 +170,44 @@ const CropRecommendation = () => {
         waterAvailability: '',
         season: '',
     });
+
+    // NDVI state
+    const [ndviDistrict, setNdviDistrict] = useState('');
+    const [ndviLoading, setNdviLoading] = useState(false);
+    const [ndviData, setNdviData] = useState(null);
+    const [ndviError, setNdviError] = useState('');
+    const [districts] = useState([
+        'Coimbatore', 'Chennai', 'Madurai', 'Salem', 'Tiruchirappalli',
+        'Thanjavur', 'Erode', 'Tirunelveli', 'Vellore', 'Tiruppur',
+        'Dindigul', 'Cuddalore', 'Kanchipuram', 'Tiruvallur', 'Villupuram',
+        'Nagapattinam', 'Nilgiris', 'Kanniyakumari', 'Thoothukudi',
+        'Ramanathapuram', 'Sivaganga', 'Virudhunagar', 'Pudukkottai',
+        'Karur', 'Namakkal', 'Theni', 'Krishnagiri', 'Dharmapuri'
+    ]);
+
+    // Fetch NDVI recommendations
+    const fetchNdviRecommendations = async () => {
+        if (!ndviDistrict) {
+            setNdviError('Please select a district');
+            return;
+        }
+
+        setNdviLoading(true);
+        setNdviError('');
+
+        try {
+            const response = await cropService.getNdviRecommendations(ndviDistrict);
+            if (response.success) {
+                setNdviData(response.data);
+            } else {
+                setNdviError('Failed to fetch NDVI data');
+            }
+        } catch (error) {
+            setNdviError(error.response?.data?.message || 'Error fetching NDVI data');
+        } finally {
+            setNdviLoading(false);
+        }
+    };
 
     // Calculate suitability score (defined before useMemo)
     const calculateSuitability = (soilType, season, water, index) => {
@@ -366,6 +405,123 @@ const CropRecommendation = () => {
                         </div>
                     )}
                 </div>
+            </div>
+
+            {/* NDVI Section */}
+            <div className="ndvi-section">
+                <div className="ndvi-divider">
+                    <span>🛰️ Satellite-Based Analysis</span>
+                </div>
+
+                <Card title="NDVI Crop Recommendations" icon={<GiSatelliteCommunication />} className="ndvi-card">
+                    <p className="ndvi-description">
+                        Get AI-powered crop suggestions based on real-time satellite vegetation data (NDVI) for your district.
+                    </p>
+
+                    <div className="ndvi-input-section">
+                        <div className="ndvi-select-group">
+                            <label><FiMapPin /> Select District (Tamil Nadu)</label>
+                            <select
+                                value={ndviDistrict}
+                                onChange={(e) => setNdviDistrict(e.target.value)}
+                                className="ndvi-district-select"
+                            >
+                                <option value="">-- Select District --</option>
+                                {districts.map(d => (
+                                    <option key={d} value={d}>{d}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <button
+                            className="ndvi-analyze-btn"
+                            onClick={fetchNdviRecommendations}
+                            disabled={ndviLoading || !ndviDistrict}
+                        >
+                            {ndviLoading ? '🔄 Analyzing...' : '🛰️ Analyze NDVI'}
+                        </button>
+                    </div>
+
+                    {ndviError && <div className="ndvi-error">{ndviError}</div>}
+
+                    {ndviData && (
+                        <div className="ndvi-results">
+                            {/* NDVI Gauge */}
+                            <div className="ndvi-gauge-section">
+                                <h4>Vegetation Health Index</h4>
+                                <div className="ndvi-gauge">
+                                    <div className="ndvi-gauge-bg">
+                                        <div
+                                            className="ndvi-gauge-fill"
+                                            style={{
+                                                width: `${ndviData.ndvi.percentage}%`,
+                                                backgroundColor: ndviData.ndvi.color
+                                            }}
+                                        />
+                                    </div>
+                                    <div className="ndvi-gauge-info">
+                                        <span className="ndvi-value">{ndviData.ndvi.value}</span>
+                                        <span className="ndvi-status" style={{ color: ndviData.ndvi.color }}>
+                                            {ndviData.ndvi.categoryEmoji} {ndviData.ndvi.category}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="ndvi-climate-info">
+                                    <span>📍 {ndviData.district}</span>
+                                    <span>🌧️ {ndviData.climate.avgRainfall}mm rainfall</span>
+                                    <span>🌡️ {ndviData.climate.avgTemp}°C avg</span>
+                                    <span>🗓️ {ndviData.climate.currentSeason} season</span>
+                                </div>
+                            </div>
+
+                            {/* Process Steps */}
+                            <div className="ndvi-steps">
+                                <h4>Analysis Process</h4>
+                                <div className="ndvi-steps-grid">
+                                    {ndviData.processSteps.slice(0, 6).map((step) => (
+                                        <div key={step.step} className="ndvi-step-item">
+                                            <span className="step-num">{step.step}</span>
+                                            <span className="step-title">{step.title}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Advisories */}
+                            {ndviData.advisories.map((adv, i) => (
+                                <div key={i} className={`ndvi-advisory ndvi-advisory-${adv.type}`}>
+                                    <strong>{adv.title}</strong>
+                                    <p>{adv.message}</p>
+                                </div>
+                            ))}
+
+                            {/* NDVI Crop Recommendations */}
+                            <div className="ndvi-crops-section">
+                                <h4>🌾 Recommended Crops Based on NDVI</h4>
+                                <div className="ndvi-crops-grid">
+                                    {ndviData.recommendations.map((crop) => (
+                                        <div key={crop.id} className="ndvi-crop-card">
+                                            <div className="ndvi-crop-header">
+                                                <span className="ndvi-crop-name">{crop.name}</span>
+                                                <span className={`ndvi-yield-badge yield-${crop.yieldLevel.toLowerCase().replace('-', '')}`}>
+                                                    {crop.yieldLevel}
+                                                </span>
+                                            </div>
+                                            <p className="ndvi-crop-advisory">{crop.advisory}</p>
+                                            <div className="ndvi-crop-meta">
+                                                <span>💧 {crop.waterRequirement} water</span>
+                                                <span>📊 {crop.suitabilityScore}% match</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <p className="ndvi-disclaimer">
+                                ⚠️ {ndviData.metadata.note}
+                            </p>
+                        </div>
+                    )}
+                </Card>
             </div>
         </div>
     );

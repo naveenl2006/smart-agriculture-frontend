@@ -34,6 +34,7 @@ import FarmSetup from './pages/FarmSetup';
 import Settings from './pages/Settings';
 import Help from './pages/Help';
 import NotFound from './pages/NotFound';
+import Notifications from './pages/Notifications';
 
 import './App.css';
 
@@ -181,6 +182,11 @@ function AppRoutes() {
       <Route path="/help" element={
         <ProtectedRoute>
           <AppLayout><Help /></AppLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/notifications" element={
+        <ProtectedRoute>
+          <AppLayout><Notifications /></AppLayout>
         </ProtectedRoute>
       } />
 

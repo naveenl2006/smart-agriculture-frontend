@@ -359,3 +359,393 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* ===================== NDVI Section Styles ===================== */
+
+.ndvi-section {
+    margin-top: var(--space-8, 2rem);
+}
+
+.ndvi-divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: var(--space-6, 1.5rem);
+}
+
+.ndvi-divider::before,
+.ndvi-divider::after {
+    content: '';
+    flex: 1;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #10b981, transparent);
+}
+
+.ndvi-divider span {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #059669;
+    white-space: nowrap;
+}
+
+.ndvi-card {
+    background: linear-gradient(145deg, #f0fdf4, #ffffff);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.ndvi-description {
+    color: var(--text-secondary);
+    margin-bottom: var(--space-4);
+    font-size: var(--text-sm);
+}
+
+.ndvi-input-section {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    margin-bottom: var(--space-4);
+}
+
+.ndvi-select-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+.ndvi-select-group label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.ndvi-select-group label svg {
+    color: #10b981;
+}
+
+.ndvi-district-select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: var(--radius-lg, 0.5rem);
+    font-size: 1rem;
+    background: white;
+    cursor: pointer;
+}
+
+.ndvi-district-select:focus {
+    outline: none;
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.ndvi-analyze-btn {
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border: none;
+    border-radius: var(--radius-lg, 0.5rem);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.ndvi-analyze-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.ndvi-analyze-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.ndvi-error {
+    padding: 0.75rem 1rem;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: var(--radius-md, 0.375rem);
+    color: #dc2626;
+    margin-bottom: var(--space-4);
+}
+
+.ndvi-results {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* NDVI Gauge */
+.ndvi-gauge-section {
+    background: white;
+    padding: 1.5rem;
+    border-radius: var(--radius-xl, 1rem);
+    margin-bottom: 1.5rem;
+    border: 1px solid #e5e7eb;
+}
+
+.ndvi-gauge-section h4 {
+    margin: 0 0 1rem;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+}
+
+.ndvi-gauge {
+    margin-bottom: 1rem;
+}
+
+.ndvi-gauge-bg {
+    width: 100%;
+    height: 24px;
+    background: linear-gradient(90deg, #ef4444 0%, #f97316 25%, #f59e0b 50%, #10b981 100%);
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+}
+
+.ndvi-gauge-fill {
+    height: 100%;
+    border-radius: 12px;
+    transition: width 0.5s ease;
+    position: relative;
+}
+
+.ndvi-gauge-fill::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: white;
+    border-radius: 2px;
+}
+
+.ndvi-gauge-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.75rem;
+}
+
+.ndvi-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.ndvi-status {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.ndvi-climate-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.ndvi-climate-info span {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+/* NDVI Steps */
+.ndvi-steps {
+    margin-bottom: 1.5rem;
+}
+
+.ndvi-steps h4 {
+    margin: 0 0 1rem;
+    color: var(--text-primary);
+}
+
+.ndvi-steps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.75rem;
+}
+
+.ndvi-step-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: #f0fdf4;
+    border-radius: var(--radius-md, 0.375rem);
+    border: 1px solid #bbf7d0;
+}
+
+.step-num {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #10b981;
+    color: white;
+    border-radius: 50%;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.step-title {
+    font-size: 0.8rem;
+    color: var(--text-primary);
+}
+
+/* NDVI Advisories */
+.ndvi-advisory {
+    padding: 1rem;
+    border-radius: var(--radius-lg, 0.5rem);
+    margin-bottom: 1rem;
+}
+
+.ndvi-advisory strong {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.ndvi-advisory p {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.ndvi-advisory-success {
+    background: #f0fdf4;
+    border-left: 4px solid #10b981;
+}
+
+.ndvi-advisory-info {
+    background: #eff6ff;
+    border-left: 4px solid #3b82f6;
+}
+
+.ndvi-advisory-warning {
+    background: #fffbeb;
+    border-left: 4px solid #f59e0b;
+}
+
+.ndvi-advisory-danger {
+    background: #fef2f2;
+    border-left: 4px solid #ef4444;
+}
+
+/* NDVI Crops */
+.ndvi-crops-section {
+    margin-top: 1.5rem;
+}
+
+.ndvi-crops-section h4 {
+    margin: 0 0 1rem;
+}
+
+.ndvi-crops-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.ndvi-crop-card {
+    background: white;
+    padding: 1.25rem;
+    border-radius: var(--radius-lg, 0.5rem);
+    border: 1px solid #e5e7eb;
+    transition: all 0.3s ease;
+}
+
+.ndvi-crop-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: #10b981;
+}
+
+.ndvi-crop-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.ndvi-crop-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+}
+
+.ndvi-yield-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.yield-high {
+    background: #d1fae5;
+    color: #059669;
+}
+
+.yield-medium,
+.yield-mediumhigh {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.yield-low,
+.yield-lowmedium {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.yield-na {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+.ndvi-crop-advisory {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin: 0 0 0.75rem;
+    line-height: 1.5;
+}
+
+.ndvi-crop-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.ndvi-disclaimer {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: #fefce8;
+    border-radius: var(--radius-md, 0.375rem);
+    font-size: 0.85rem;
+    color: #854d0e;
+    border: 1px solid #fef08a;
+}
+
+/* Responsive NDVI */
+@media (max-width: 768px) {
+    .ndvi-input-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .ndvi-analyze-btn {
+        width: 100%;
+    }
+
+    .ndvi-crops-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ndvi-steps-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

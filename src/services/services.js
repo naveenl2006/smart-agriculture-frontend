@@ -20,6 +20,17 @@ export const cropService = {
         const response = await api.get('/crops/recommendations/history');
         return response.data;
     },
+
+    // NDVI-based recommendations
+    getNdviDistricts: async () => {
+        const response = await api.get('/crops/ndvi-districts');
+        return response.data;
+    },
+
+    getNdviRecommendations: async (district) => {
+        const response = await api.post('/crops/ndvi-recommend', { district });
+        return response.data;
+    },
 };
 
 export const diseaseService = {
